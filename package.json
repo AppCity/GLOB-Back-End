@@ -7,14 +7,15 @@
     "prebuild": "rm -rf dist",
     "build": "tsc",
     "dev": "ts-node-dev --no-notify src",
-
     "start": "node dist/index.js",
     "postinstall": "tsc",
     "watch-node": "nodemon dist/index.js",
     "watch-ts": "tsc -w",
     "deploy": "git add . && git commit -m Heroku && git push heroku master"
   },
-  "engines": { "node": "15.9.0" },
+  "engines": {
+    "node": "15.9.0"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -24,6 +25,7 @@
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "ioredis": "^4.26.0",
+    "joi": "^17.4.0",
     "mongoose": "^5.12.5"
   },
   "devDependencies": {
