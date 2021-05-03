@@ -1,6 +1,6 @@
 # Dependency directories
-node_modules/
-jspm_packages/
+/node_modules
+/jspm_packages
 
 # generate output
-dist
+/dist
