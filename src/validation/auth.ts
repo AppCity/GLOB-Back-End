@@ -1,4 +1,4 @@
-import Joi from "@hapi/joi";
+import Joi from "joi";
 import { BCRYPT_MAX_BYTES } from "../config";
 
 const email = Joi.string().email().min(8).max(254).lowercase().trim().required()
