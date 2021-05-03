@@ -20,5 +20,5 @@ import { createApp } from './app'
 
     const app = createApp(store)
     
-    app.listen(APP_PORT, () => console.log('http://localhost:3000'))
+    app.listen(APP_PORT, () => console.log('http://localhost:' + APP_PORT))
 })()
