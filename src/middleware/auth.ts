@@ -31,5 +31,5 @@ export const active = async (req: Request, res: Response, next: NextFunction) =>
         }
     }
 
-    next()
+    //next()
 }

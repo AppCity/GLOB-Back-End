@@ -19,7 +19,7 @@ export const createApp = (store: Store) => {
         })
     )
 
-    //app.use(catchAsync(active))
+    app.use(catchAsync(active))
 
     app.use(login)
 

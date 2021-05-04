@@ -10,6 +10,10 @@ router.get('/home', auth, catchAsync(async (req: Request, res: Response) => {
     const user = await User.findById(req.session!.userId)
     //const user = await User.findById(req.session!.userId).select('-password -__v')
     res.json(user)
+
+    res.end()
+
+    return true
 }))
 
 export default router
