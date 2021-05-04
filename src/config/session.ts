@@ -26,6 +26,6 @@ export const SESSION_OPTIONS: SessionOptions = {
         sameSite: true
     },
     rolling: true, // puoi estendere il timeout se l'utente è ancora attivo
-    resave: true,
-    saveUninitialized: true
+    resave: false,
+    saveUninitialized: false
 }
