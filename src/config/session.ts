@@ -22,8 +22,9 @@ export const SESSION_OPTIONS: SessionOptions = {
     name: SESSION_NAME,
     cookie: {
         maxAge: +SESSION_IDLE_TIMEOUT,
-        secure: IN_PROD,
-        sameSite: true
+        secure: false, //IN_PROD,
+        sameSite: true,
+        httpOnly: false
     },
     rolling: true, // puoi estendere il timeout se l'utente è ancora attivo
     resave: false,
