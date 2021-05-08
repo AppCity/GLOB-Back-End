@@ -1,11 +1,11 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
 
-export const catchAsync = (handler: any) => //(handler: RequestHandler) =>
+export const catchAsync = (handler: RequestHandler) =>
     async (...args: [Request, Response, NextFunction]) => {
         try
         {
             const functionResult = await handler(...args)
-            if (!functionResult)
+            if (!args[1].getHeader('set-cookie'))
                 args[2]()
         }
         catch (err)
@@ -15,6 +15,7 @@ export const catchAsync = (handler: any) => //(handler: RequestHandler) =>
     }
 
 export const notFound = (req: Request, res: Response, next: NextFunction) => {
+    console.log(res.getHeaders())
     res.status(404).json({ message: 'Not Found' })
 }
 
