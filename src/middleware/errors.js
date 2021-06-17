@@ -1,11 +1,10 @@
-import { NextFunction, Request, RequestHandler, Response } from "express";
-
-export const catchAsync = (handler: RequestHandler) =>
-    async (...args: [Request, Response, NextFunction]) => {
+const catchAsync = (handler) =>
+    async (...args) => {
         try
         {
             const functionResult = await handler(...args)
-            if (!args[1].getHeader('set-cookie'))
+            // TODO search when I have to pass this
+            //if (!args[1].getHeader('set-cookie'))
                 args[2]()
         }
         catch (err)
@@ -14,14 +13,20 @@ export const catchAsync = (handler: RequestHandler) =>
         }
     }
 
-export const notFound = (req: Request, res: Response, next: NextFunction) => {
+const notFound = (req, res, next) => {
     console.log(res.getHeaders())
     res.status(404).json({ message: 'Not Found' })
 }
 
-export const serverError = (err: any, req: Request, res: Response, next: NextFunction) => {
+const serverError = (err, req, res, next) => {
     if (!err.status) {
         console.error(err.stack)
     }
     res.status(err.status || 500).json ({ message: err.message || "Internal Server Error" })
+}
+
+module.exports = {
+    catchAsync,
+    notFound,
+    serverError
 }

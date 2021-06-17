@@ -1,14 +1,7 @@
-import { compare, hash } from "bcryptjs";
-import mongoose, { Schema, model, Document } from "mongoose";
-import { BCRYPT_WORK_FACTOR } from "../config";
-import { register } from "../routes";
+const bcrypt = require("bcrypt")
+const { Schema, model, Document } = require("mongoose")
+//const { BCRYPT_WORK_FACTOR } = require("../config/auth")
 
-interface UserDocument extends Document {
-    email: string
-    name: string
-    password: string
-    matchesPassword: (password: string) => Promise<boolean>
-}
 
 const userSchema = new Schema({
     email: String,
@@ -18,9 +11,25 @@ const userSchema = new Schema({
     timestamps: true
 })
 
-userSchema.pre<UserDocument>('save', async function () {
+userSchema.pre('save', async function () {
     if (this.isModified('password')) {
-        this.password = await hash(this.password, BCRYPT_WORK_FACTOR)
+        
+        
+        // generate the salt and then the hashed password
+        //const salt = bcrypt.genSalt(SALT_ROUND_NUMBER) // default is 10 round, longer it is
+        //const hashedPassword = await bcrypt.hash(req.body.password, salt)
+
+        // directly generate the hashed password with the salt inside
+        const hashedPassword = await bcrypt.hash(this.password, SALT_ROUND_NUMBER)
+
+        // I don't have to save the salt part, because its information
+        // is inside the hashed password itself (bcrypt alg)
+        
+        
+
+        // OLD VERSION
+        //this.password = await hash(this.password, BCRYPT_WORK_FACTOR)
+        
         /*
         // we can use also hash + bcrypt
         // The advantage is that the hash function with parameter sha256
@@ -41,13 +50,17 @@ userSchema.pre<UserDocument>('save', async function () {
 })
 
 // create a helper method to validate given password with the DB one
-userSchema.methods.matchesPassword = function(password: string) {
-    let userDoc = this as UserDocument
+userSchema.methods.matchesPassword = function(password) {
+    let userDoc = this
     return compare(password, userDoc.password)
 }
 
 userSchema.set('toJSON', {
-    transform: (doc: UserDocument, {__v, password, ...rest}: any, options:any) => rest
+    transform: (doc, {__v, password, ...rest}, options) => rest
 })
 
-export const User = model<UserDocument>('User', userSchema)
+const User = model('User', userSchema)
+
+module.exports = {
+    User
+}

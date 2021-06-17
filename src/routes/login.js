@@ -1,13 +1,15 @@
-import { Request, Response, Router } from "express";
-import { catchAsync, guest, auth } from "../middleware";
-import { User } from "../models";
-import { validate, loginSchema } from "../validation";
-import { Unauthorized } from "../errors";
-import { logIn, logOut } from "../auth";
+const { Router } = require("express")
+const { guest, auth } = require("../middleware/auth")
+const { catchAsync } = require("../middleware/errors")
+const { User } = require("../models/user")
+const { validate } = require("../validation/joi")
+const { loginSchema } = require("../validation/auth")
+const { Unauthorized } = require("../errors/index")
+const { logIn, logOut } = require("../auth")
 
 const router = Router()
 
-router.post('/login', guest, catchAsync(async (req: Request, res: Response) => {
+router.post('/login', guest, catchAsync(async (req, res) => {
     await validate(loginSchema, req.body)
     const { email, password } = req.body
 
@@ -31,7 +33,7 @@ router.post('/login', guest, catchAsync(async (req: Request, res: Response) => {
     return true
 }))
 
-router.post('/logout', auth, catchAsync(async(req: Request, res: Response) => {
+router.post('/logout', auth, catchAsync(async(req, res) => {
     await logOut(req, res)
     
     res.json({ messsage: 'OK'})
@@ -41,4 +43,6 @@ router.post('/logout', auth, catchAsync(async(req: Request, res: Response) => {
     return true
 }))
 
-export default router
+module.exports = {
+    router
+}
