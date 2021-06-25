@@ -2,9 +2,11 @@ const catchAsync = (handler) =>
     async (...args) => {
         try
         {
+            // the args array is = [request, response, next]
             const functionResult = await handler(...args)
-            // TODO search when I have to pass this
-            //if (!args[1].getHeader('set-cookie'))
+            
+            // if the main response is not ok, check for errors with next middleware
+            if (!args[1].getHeader('content-length'))
                 args[2]()
         }
         catch (err)
