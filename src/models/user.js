@@ -1,19 +1,22 @@
 const bcrypt = require("bcrypt")
 const { Schema, model, Document } = require("mongoose")
 //const { BCRYPT_WORK_FACTOR } = require("../config/auth")
+const { SALT_ROUND_NUMBER } = require("../config/auth")
 
 
 const userSchema = new Schema({
+    fullname: String,
+    username: String,
+    phone: String,
     email: String,
-    name: String,
-    password: String
+    password: String,
+    refreshToken: String
 }, {
     timestamps: true
 })
 
 userSchema.pre('save', async function () {
     if (this.isModified('password')) {
-        
         
         // generate the salt and then the hashed password
         //const salt = bcrypt.genSalt(SALT_ROUND_NUMBER) // default is 10 round, longer it is
@@ -24,7 +27,7 @@ userSchema.pre('save', async function () {
 
         // I don't have to save the salt part, because its information
         // is inside the hashed password itself (bcrypt alg)
-        
+        this.password = hashedPassword;        
         
 
         // OLD VERSION
