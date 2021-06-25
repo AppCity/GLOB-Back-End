@@ -1,13 +1,12 @@
 class HttpError {
-    constructor () {
-        this.message = "Generic HTTP Error"
+    constructor (message = 'Generic HTTP Error') {
+        this.message = message
     }
 }
 
 class BadRequest extends HttpError {
-    constructor (message = 'Bad Request') {
+    constructor (message = 'Bad Request', a, b) {
         super(message)
-
         this.status = 400
     }
 }
