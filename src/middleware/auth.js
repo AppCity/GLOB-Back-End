@@ -1,6 +1,7 @@
 const { isLoggedIn, logOut } = require('../auth')
 const { Unauthorized } = require('../errors')
 
+// method which says if a user is already logged in
 const guest = (req, res, next) => {
     if (isLoggedIn(req)) {
         return next(new Unauthorized('You are already logged in'))
@@ -9,18 +10,23 @@ const guest = (req, res, next) => {
     next()
 }
 
+// method which says if a user don't have access to content because is not logged in
 const auth = (req, res, next) => {
     if (!isLoggedIn(req)) {
         return next(new Unauthorized('You must be logged in'))
     }
-
+    
     next()
 }
 
+// method which says if the session/token is expired
+// TODO -> come farlo con i token? è possibile??
 const active = async (req, res, next) => {
     if (isLoggedIn(req)) {
-        const now = Date.now()
-        const { createdAt } = req.session //as Express.Session
+        //const now = Date.now()
+        //const { createdAt } = req.session //as Express.Session
+
+        console.log("ACTIVE HAS BEEN ENTERED!")
 
         /*
         if (!createdAt || now > createdAt + SESSION_ABSOLUTE_TIMEOUT) {
@@ -35,29 +41,8 @@ const active = async (req, res, next) => {
 }
 
 
-const authenticateToken = (req, res, next) => {
-    const authHeader = req.headers['authorization']
-    // authHeader is equals to -> Bearer TOKEN
-    const token = authHeader && authHeader.split(' ')[1]
-    console.log(token)
-    if (!token)
-        return res.sendStatus(401)
-    
-    // there is a valid token in the request
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-        // user has a token but is not anymore valid
-        if (err)
-            return res.sendStatus(403)
-        
-        req.user = user
-        console.log(req.user)
-        next()
-    })
-}
-
 module.exports = {
     guest,
     auth,
-    active,
-    authenticateToken
+    active
 }

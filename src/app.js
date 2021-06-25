@@ -4,7 +4,7 @@ const { active } = require('./middleware/auth')
 const { serverError, notFound, catchAsync } = require('./middleware/errors')
 const home = require('./routes/home')
 const login = require('./routes/login')
-const register = require('./routes/home')
+const register = require('./routes/register')
 
 
 const createApp = () => {

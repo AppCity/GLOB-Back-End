@@ -5,42 +5,54 @@ const { User } = require("../models/user")
 
 const { logIn } = require("../auth")
 const { catchAsync } = require('../middleware/errors')
-const { guest } = require('../middleware/auth')
+const { guest, auth } = require('../middleware/auth')
 const { BadRequest } = require('../errors')
 
 const router = Router()
 
 router.post('/signup', guest, catchAsync(async (req, res) => {
 
-    console.log("HEEERE!")
-
     await validate(registerSchema, req.body)
     
-    const { email, name, password } = req.body
+    const { fullname, username, phone, email, password } = req.body
 
-    const found = await User.exists({ email })
+    // search if a user with the same username is alredy signed up
+    const usernameFound = await User.exists({ username })
 
-    if (found) {
-        throw new BadRequest('Invalid email')
+    if (usernameFound) {
+        throw new BadRequest('Invalid username')
     }
 
+    // create new user and save it inside the DB
     const user = await User.create({
-        email, name, password
+        fullname,
+        username,
+        phone,
+        email,
+        password
     })
 
-    //logIn(req, user.id)
+    // login the just signed up user
+    const { accessToken, refreshToken } = logIn(req, user)
 
-    res.json({message: 'OK'})
+    // add refreshToken to added user
+    user.refreshToken = refreshToken;
+    const result = await user.save();
+
+    // respond with the two tokens
+    res.json({message: 'ok', accessToken, refreshToken })
 
     res.end()
 
     return true
-}));
+}))
 
 
-router.get('/users', /*authenticateToken,*/ (req, res) => {
+router.get('/users', auth, catchAsync(async (req, res) => {
+    const users = await User.findById(req.user.id)
+
     res.json(users)
-})
+}))
 
 module.exports = {
     router
