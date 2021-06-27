@@ -1,6 +1,5 @@
 const express = require('express')
 
-const { active } = require('./middleware/auth')
 const { serverError, notFound, catchAsync } = require('./middleware/errors')
 const home = require('./routes/home')
 const login = require('./routes/login')
@@ -11,8 +10,6 @@ const createApp = () => {
     const app = express();
 
     app.use(express.json())
-
-    app.use(catchAsync(active))
 
     app.use(login.router)
 

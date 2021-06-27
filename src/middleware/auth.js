@@ -21,30 +21,8 @@ const auth = (req, res, next) => {
     next()
 }
 
-// method which says if the session/token is expired
-// TODO -> come farlo con i token? è possibile??
-const active = async (req, res, next) => {
-    if (isLoggedIn(req)) {
-        //const now = Date.now()
-        //const { createdAt } = req.session //as Express.Session
-
-        console.log("ACTIVE HAS BEEN ENTERED!")
-
-        /*
-        if (!createdAt || now > createdAt + SESSION_ABSOLUTE_TIMEOUT) {
-            await logOut(req, res)
-
-            return next(new Unauthorized('Session Expired'))
-        }
-        */
-    }
-
-    //next()
-}
-
 
 module.exports = {
     guest,
-    auth,
-    active
+    auth
 }
