@@ -1,18 +1,52 @@
 const { Router } = require('express')
 const { auth } = require('../middleware/auth')
 const { catchAsync } = require('../middleware/errors')
+const { User } = require('../models/user')
 
 const router = Router()
+
+///////////////////////////////////////////
+// Main Requests Server Section
+///////////////////////////////////////////
+const posts = [
+    {
+        username: 'giovannivolpin',
+        title: 'Post 1'
+    },
+    {
+        username: 'jim',
+        title: 'Post 2'
+    },
+    {
+        username: 'giovannivolpin',
+        title: 'Post 3'
+    },
+    {
+        username: 'giovannivolpin',
+        title: 'Post 4'
+    },
+    {
+        username: 'jim',
+        title: 'Post 5'
+    },
+    {
+        username: 'giovannivolpin',
+        title: 'Post 6'
+    },
+
+]
+
 
 router.get('/home', auth, catchAsync(async (req, res) => {
     // 2 methods, remove the unwanted fields
     // or use a Mongoose model (see user.ts -> end)
-    //const user = await User.findById(req.session!.userId)
 
+    const dataToRemove = '-password -__v -refreshToken -createdAt -updatedAt'
 
+    const user = await User.findById(req.user.id).select(dataToRemove)
 
-    //const user = await User.findById(req.session!.userId).select('-password -__v')
-    res.json(user)
+    // only get posts from currently logged in user
+    res.json(posts.filter(post => post.username === user.username ))
 
     res.end()
 

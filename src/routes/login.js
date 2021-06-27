@@ -78,7 +78,7 @@ router.get('/token', auth, catchAsync(async(req, res) => {
     const refreshToken = user.refreshToken
 
     if (!refreshToken)
-        return res.Unauthorized("User has been logged out")
+        throw new Unauthorized("User has been logged out")
 
     // verify the given token and refresh it
     const accessToken = refreshUserToken(user, refreshToken)
