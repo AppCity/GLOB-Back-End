@@ -36,6 +36,13 @@ const posts = [
 
 ]
 
+router.get('/', auth, catchAsync(async (req, res) => {
+    res.json({ message: "Not Implemented Yet!"})
+
+    res.end()
+
+    return true
+}))
 
 router.get('/home', auth, catchAsync(async (req, res) => {
     // 2 methods, remove the unwanted fields
