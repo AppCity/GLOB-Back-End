@@ -53,9 +53,9 @@ userSchema.pre('save', async function () {
 })
 
 // create a helper method to validate given password with the DB one
-userSchema.methods.matchesPassword = function(password) {
+userSchema.methods.matchesPassword = async function(password) {
     let userDoc = this
-    return compare(password, userDoc.password)
+    return await bcrypt.compare(password, userDoc.password)
 }
 
 userSchema.set('toJSON', {

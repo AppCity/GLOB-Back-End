@@ -6,27 +6,33 @@ const { validate } = require("../validation/joi")
 const { loginSchema } = require("../validation/auth")
 const { Unauthorized } = require("../errors/index")
 const { logIn, logOut } = require("../auth")
+const { RESPONSE_STATUS_OK } = require("../config/constants")
 
 const router = Router()
 
 router.post('/login', guest, catchAsync(async (req, res) => {
     await validate(loginSchema, req.body)
-    const { email, password } = req.body
+    const { username, password } = req.body
 
-    const user = await User.findOne({ email })
+    const user = await User.findOne({ username })
 
     /*
-      TODO questo codice è vulnerabile ai TimingAttack,
-      ossia con una serie di richieste riesco a capire quando sbaglia la mail
-      e quando la password, poiché la password mette molto più tempo ad essere elaborata
+      This code is vulnerable to TimingAttack,
+      that is when with a lot of request I can undestand when the password is wrong
+      and when the username is wrong instead, as the password validation requires more time.
     */
     if (!user || !(await user.matchesPassword(password))) {
         throw new Unauthorized('Incorrect email or password')
     }
 
-    logIn(req, user.id)
+    const { accessToken, refreshToken } = logIn(req, user)
 
-    res.json({ message: 'OK'})
+    // add refreshToken to the user
+    user.refreshToken = refreshToken;
+    const result = await user.save();
+
+    // respond with the two tokens
+    res.json({ message: RESPONSE_STATUS_OK, accessToken })
 
     res.end()
 
@@ -36,7 +42,7 @@ router.post('/login', guest, catchAsync(async (req, res) => {
 router.post('/logout', auth, catchAsync(async(req, res) => {
     await logOut(req, res)
     
-    res.json({ messsage: 'OK'})
+    res.json({ messsage: RESPONSE_STATUS_OK })
 
     res.end()
 

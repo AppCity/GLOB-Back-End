@@ -11,7 +11,7 @@ const generateAccessToken = (payload) => {
 }
 
 ///////////////////////////////////////////
-// is the user logged in?
+// Is the user logged in?
 ///////////////////////////////////////////
 const isLoggedIn = (req) => {
     const authHeader = req.headers['authorization']

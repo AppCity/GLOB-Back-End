@@ -13,6 +13,10 @@ const password = Joi.string().min(8).max(BCRYPT_MAX_BYTES)
     .required()
 //const passwordConfirmation = Joi.valid(Joi.ref('password')).required()
 
+// login password must not return needed details about password 
+const loginPassword = Joi.string().min(8).required()
+
+// schema for registration request
 const registerSchema = Joi.object({
     fullname,
     username,
@@ -22,9 +26,10 @@ const registerSchema = Joi.object({
     //passwordConfirmation
 })
 
+// schema for login request
 const loginSchema = Joi.object({
-    email,
-    password
+    username,
+    password: loginPassword
 })
 
 module.exports = {
