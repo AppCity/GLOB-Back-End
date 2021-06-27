@@ -12,8 +12,10 @@ const guest = (req, res, next) => {
 
 // method which says if a user don't have access to content because is not logged in
 const auth = (req, res, next) => {
-    if (!isLoggedIn(req)) {
-        return next(new Unauthorized('You must be logged in'))
+    const { loginResult, errorName } = isLoggedIn(req, req.url.includes("token"))
+
+    if (!loginResult) {
+        return next(new Unauthorized((errorName) ? errorName : 'NotLoggedIn'))
     }
     
     next()
