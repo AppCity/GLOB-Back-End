@@ -25,12 +25,10 @@ const isLoggedIn = (req) => {
     jwt.verify(token, ACCESS_TOKEN_SECRET, (err, user) => {
         // user has a token but is not anymore valid
         if (err)
-            return false
-        
-        // add the userId saved in the token inside the request
-        req.user = user
-        
-        return true
+            req.user = null
+        else        
+            // add the userId saved in the token inside the request
+            req.user = user
     })
 
     // user has a valid token if "user" option has been set
@@ -57,7 +55,16 @@ const logIn = (req, user) => {
 ///////////////////////////////////////////
 // Logout the user
 ///////////////////////////////////////////
-const logOut = () => {}
+const logOut = async (user) => {
+
+    // TODO invalidate current accessoToken
+
+    // remove refreshToken from the user
+    user.refreshToken = ""
+    const result = await user.save()
+
+    return result
+}
 
 module.exports = {
     isLoggedIn,
