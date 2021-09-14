@@ -6,8 +6,13 @@ const { User } = require("../models/user")
 const { Unauthorized, BadRequest } = require("../errors/index")
 const { RESPONSE_STATUS_OK, RESPONSE_STATUS_ERROR } = require("../config/constants")
 
+const url = require('url');
+
 const router = Router()
 
+/**
+ * Create a new blog
+ */
 router.post('/blogs', auth, catchAsync(async (req, res) => {
     const user = await User.findById(req.user.id)
 
@@ -31,6 +36,42 @@ router.post('/blogs', auth, catchAsync(async (req, res) => {
 
     // respond with the two tokens
     res.json({ message: RESPONSE_STATUS_OK })
+
+    res.end()
+
+    return true
+}))
+
+
+/**
+ * Get all blogs, filtered by id, user, "pagination" or category parameters
+ */
+ router.get('/blogs', auth, catchAsync(async (req, res) => {
+
+    // get request parameters
+    const params = url.parse(req.url,true).query;
+
+    console.log("PARAMS ", params)
+
+    let filter = {}
+    
+    // filter by blog id
+    if (params.id)
+        filter = { _id: params.id }
+
+    // filter by userId
+    if (params.userId)
+        filter = { ...filter, userId: params.userId}
+
+    // filter by category
+    if (params.category)
+        filter = { ...filter, category: params.category}
+
+    const dataToRemove = '-createdAt -updatedAt'
+    
+    const blogs = await Blog.find(filter).sort({_createdAt:-1}).limit(10)
+
+    res.json(blogs)
 
     res.end()
 
