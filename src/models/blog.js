@@ -3,12 +3,12 @@ const { Schema, model, Document, ObjectId } = require("mongoose")
 
 
 const blogSchema = new Schema({
-    author: ObjectId,
+    userId: ObjectId,
     title: String,
-    body: String,
+    headline: String,
+    content: String,
+    image: String,
     likes: { type: Number, default: 0 },
-    //comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
-    //img: { data: Buffer, contentType: String }
 }, {
     timestamps: true
 })

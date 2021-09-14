@@ -12,18 +12,19 @@ router.post('/blogs', auth, catchAsync(async (req, res) => {
     const user = await User.findById(req.user.id)
 
     //await validate(loginSchema, req.body)
-    const { title, body, comments, img } = req.body
+    const { category, title, headline, content, image } = req.body
 
     // TODO how to add the image and the comment list.
 
     // create new user and save it inside the DB
     const blog = await Blog.create({
-        author: user._id,
+        userId: user._id,
+        category,
         title,
-        body,
-        likes: 0,
-        // comments,
-        // img
+        headline,
+        content,
+        image,
+        likes: 0
     })
 
     console.log("NEW BLOG: ", blog);
