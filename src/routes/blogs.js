@@ -67,9 +67,15 @@ router.post('/blogs', auth, catchAsync(async (req, res) => {
     if (params.category)
         filter = { ...filter, category: params.category}
 
+    // pagination section
+    const page = (params.page) ? parseInt(params.page) : 0
+    const pageSize = (params.size) ? parseInt(params.size) : 0
+    const offset = (page - 1) * pageSize
+
+    // field to remove from the result
     const dataToRemove = '-createdAt -updatedAt'
     
-    const blogs = await Blog.find(filter).sort({_createdAt:-1}).limit(10)
+    const blogs = await Blog.find(filter).sort({createdAt:-1}).skip(offset).limit(pageSize)
 
     res.json(blogs)
 
