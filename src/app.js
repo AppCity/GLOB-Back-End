@@ -5,6 +5,7 @@ const home = require('./routes/home')
 const login = require('./routes/login')
 const register = require('./routes/register')
 const blogs = require('./routes/blogs')
+const categories = require('./routes/categories')
 
 
 const createApp = () => {
@@ -19,6 +20,8 @@ const createApp = () => {
     app.use(home.router)
 
     app.use(blogs.router)
+
+    app.use(categories.router)
 
     app.use(notFound)
 
