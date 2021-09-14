@@ -4,6 +4,7 @@ const { serverError, notFound, catchAsync } = require('./middleware/errors')
 const home = require('./routes/home')
 const login = require('./routes/login')
 const register = require('./routes/register')
+const blogs = require('./routes/blogs')
 
 
 const createApp = () => {
@@ -16,6 +17,8 @@ const createApp = () => {
     app.use(register.router)
 
     app.use(home.router)
+
+    app.use(blogs.router)
 
     app.use(notFound)
 
