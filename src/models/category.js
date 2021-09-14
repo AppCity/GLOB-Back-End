@@ -2,7 +2,10 @@ const { Schema, model, Document, ObjectId } = require("mongoose")
 
 
 const categorySchema = new Schema({
-    value: String,
+    value: {
+        type: String,
+        unique: true // category value must be unique
+    },
     title: String,
     image: String,
 }, {
