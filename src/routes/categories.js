@@ -46,10 +46,10 @@ router.post('/categories', auth, catchAsync(async (req, res) => {
 router.get('/categories', auth, catchAsync(async (req, res) => {
 
     const dataToRemove = '-createdAt -updatedAt'
-    
-    const user = await Category.find().select(dataToRemove)
 
-    res.json(user)
+    const categoriesList = await Category.find().select(dataToRemove)
+
+    res.json(categoriesList)
 
     res.end()
 
