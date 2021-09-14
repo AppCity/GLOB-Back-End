@@ -4,6 +4,7 @@ const { Schema, model, Document, ObjectId } = require("mongoose")
 
 const blogSchema = new Schema({
     userId: ObjectId,
+    category: String,
     title: String,
     headline: String,
     content: String,
