@@ -40,3 +40,22 @@ router.post('/categories', auth, catchAsync(async (req, res) => {
     return true
 }))
 
+/**
+ * Get the categories list
+ */
+router.get('/categories', auth, catchAsync(async (req, res) => {
+
+    const dataToRemove = '-createdAt -updatedAt'
+    
+    const user = await Category.find().select(dataToRemove)
+
+    res.json(user)
+
+    res.end()
+
+    return true
+}))
+
+module.exports = {
+    router
+}
