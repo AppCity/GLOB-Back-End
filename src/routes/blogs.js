@@ -3,6 +3,7 @@ const { guest, auth } = require("../middleware/auth")
 const { catchAsync } = require("../middleware/errors")
 const { Blog } = require("../models/blog")
 const { User } = require("../models/user")
+const { Like } = require("../models/like")
 const { Unauthorized, BadRequest } = require("../errors/index")
 const { RESPONSE_STATUS_OK, RESPONSE_STATUS_ERROR } = require("../config/constants")
 
@@ -65,20 +66,20 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
     }
     // edit a blog
     else {
-    // TODO how to add the image.
+        // TODO how to add the image.
 
-    // get blog with given id and userid
-    const { id, userId, ...newBlog } = edited
-    const filter = { _id: mongoose.Types.ObjectId(id), userId }
+        // get blog with given id and userid
+        const { id, userId, ...newBlog } = edited
+        const filter = { _id: mongoose.Types.ObjectId(id), userId }
 
-    const oldBlog = await Blog.findOneAndUpdate(filter, newBlog)
+        const oldBlog = await Blog.findOneAndUpdate(filter, newBlog)
 
-    if (!oldBlog) {
-        throw new BadRequest('A blog with id ' + id + ' written by ' + userId + ' has not been found')
-    }
+        if (!oldBlog) {
+            throw new BadRequest('A blog with id ' + id + ' written by ' + userId + ' has not been found')
+        }
 
-    // const blog = await Blog.findOne(filter);
-    // console.log("newBlog: ", blog);
+        // const blog = await Blog.findOne(filter);
+        // console.log("newBlog: ", blog);
     }
 
     // respond with ok status
@@ -187,6 +188,19 @@ const likeTheBlog = async (likeParams) => {
     // if is already liked, update the current reference
     else if (likeReference) {
         const newLikeReference = await Like.updateOne(likeFilter, { active })
+    }
+
+    // if there isn't the reference and it is a like request
+    // or requested active is not the same as old one, increase/decrease the counter
+    if ((!likeReference && active) || (likeReference && likeReference.active != active)) {
+        // get the blog and increase/decrease its counter
+        const filter = { _id: mongoose.Types.ObjectId(id) }
+        const update = (!isAlreadyLiked) ? 1 : -1
+
+        const incResult = await Blog.updateOne(
+            filter,
+            { "$inc": { "likes": update } }
+        )
     }
 }
 
