@@ -42,7 +42,7 @@ router.post('/blogs', auth, catchAsync(async (req, res) => {
 }))
 
 /**
- * Edit properties of an existent blog
+ * Edit properties of an existing blog or like/unlike a blog
  */
 router.put('/blogs', auth, catchAsync(async (req, res) => {
     const edited = req.body
@@ -55,8 +55,16 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
         const user = await User.findById(req.user.id)
         edited.userId = user._id
     }
+    else {
+        edited.userId = (typeof edited.userId == "string") ? mongoose.Types.ObjectId(edited.userId) : edited.userId
+    }
 
-
+    // like/unlike a blog
+    if (edited.active != undefined) {
+        await likeTheBlog(edited)
+    }
+    // edit a blog
+    else {
     // TODO how to add the image.
 
     // get blog with given id and userid
@@ -71,6 +79,7 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
 
     // const blog = await Blog.findOne(filter);
     // console.log("newBlog: ", blog);
+    }
 
     // respond with ok status
     res.json({ message: RESPONSE_STATUS_OK })
@@ -94,6 +103,9 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
     if (!params.userId) {
         const user = await User.findById(req.user.id)
         params.userId = user._id
+    }
+    else {
+        edited.userId = (typeof edited.userId == "string") ? mongoose.Types.ObjectId(edited.userId) : edited.userId
     }
         
     // delete blog with given id and userid
