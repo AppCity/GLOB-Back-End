@@ -7,6 +7,7 @@ const { Unauthorized, BadRequest } = require("../errors/index")
 const { RESPONSE_STATUS_OK, RESPONSE_STATUS_ERROR } = require("../config/constants")
 
 const url = require('url');
+const mongoose = require('mongoose');
 
 const router = Router()
 
@@ -40,8 +41,38 @@ router.post('/blogs', auth, catchAsync(async (req, res) => {
     return true
 }))
 
+/**
+ * Edit properties of an existent blog
+ */
+router.put('/blogs', auth, catchAsync(async (req, res) => {
+    const edited = req.body
 
-    // respond with the two tokens
+    if (!edited.id) {
+        throw new BadRequest('Blog ID is needed to edit it!')
+    }
+
+    if (!edited.userId) {
+        const user = await User.findById(req.user.id)
+        edited.userId = user._id
+    }
+
+
+    // TODO how to add the image.
+
+    // get blog with given id and userid
+    const { id, userId, ...newBlog } = edited
+    const filter = { _id: mongoose.Types.ObjectId(id), userId }
+
+    const oldBlog = await Blog.findOneAndUpdate(filter, newBlog)
+
+    if (!oldBlog) {
+        throw new BadRequest('Not one blog with id ' + id + ' written by ' + userId)
+    }
+
+    // const blog = await Blog.findOne(filter);
+    // console.log("newBlog: ", blog);
+
+    // respond with ok status
     res.json({ message: RESPONSE_STATUS_OK })
 
     res.end()
