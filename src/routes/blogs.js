@@ -163,6 +163,38 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
     return true
 }))
 
+//////////////////////////////////////////
+// Utils
+//////////////////////////////////////////
+
+const likeTheBlog = async (likeParams) => {
+    const { id, userId, active } = likeParams
+
+    // search if current user has previously liked this blog
+    const likeFilter = { userId: mongoose.Types.ObjectId(id), blogId: userId }
+    const likeReference = await Like.findOne(likeFilter)
+
+    // if no reference is found, the blog is not liked by current user
+    let isAlreadyLiked = true
+    if (!likeReference || !likeReference.active) {
+        isAlreadyLiked = false
+    }
+
+    // if not already liked and like is active, add a new reference document
+    if (!isAlreadyLiked && !likeReference && active) {
+        const newLikeReference = await Like.create({ ...likeFilter, active })
+    }
+    // if is already liked, update the current reference
+    else if (likeReference) {
+        const newLikeReference = await Like.updateOne(likeFilter, { active })
+    }
+}
+
+
+//////////////////////////////////////////
+// Exports
+//////////////////////////////////////////
+
 module.exports = {
     router
 }
