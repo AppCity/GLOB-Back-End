@@ -19,7 +19,7 @@ router.post('/blogs', auth, catchAsync(async (req, res) => {
     //await validate(loginSchema, req.body)
     const { category, title, headline, content, image } = req.body
 
-    // TODO how to add the image and the comment list.
+    // TODO how to add the image.
 
     // create new user and save it inside the DB
     const blog = await Blog.create({
@@ -32,7 +32,14 @@ router.post('/blogs', auth, catchAsync(async (req, res) => {
         likes: 0
     })
 
-    console.log("NEW BLOG: ", blog);
+    // respond with ok status
+    res.json({ message: RESPONSE_STATUS_OK, id: blog._id })
+
+    res.end()
+
+    return true
+}))
+
 
     // respond with the two tokens
     res.json({ message: RESPONSE_STATUS_OK })
