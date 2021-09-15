@@ -66,7 +66,7 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
     const oldBlog = await Blog.findOneAndUpdate(filter, newBlog)
 
     if (!oldBlog) {
-        throw new BadRequest('Not one blog with id ' + id + ' written by ' + userId)
+        throw new BadRequest('A blog with id ' + id + ' written by ' + userId + ' has not been found')
     }
 
     // const blog = await Blog.findOne(filter);
@@ -80,6 +80,37 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
     return true
 }))
 
+/**
+ * Delete a blog
+ */
+ router.delete('/blogs', auth, catchAsync(async (req, res) => {
+    // get request parameters
+    const params = url.parse(req.url,true).query;
+
+    if (!params.id) {
+        throw new BadRequest('Blog ID is needed to delete it!')
+    }
+
+    if (!params.userId) {
+        const user = await User.findById(req.user.id)
+        params.userId = user._id
+    }
+        
+    // delete blog with given id and userid
+    const filter = { _id: mongoose.Types.ObjectId(params.id), userId: params.userId }
+    const oldBlog = await Blog.deleteOne(filter)
+
+    // if no blogs have been deleted, throw an error
+    if (!oldBlog || !oldBlog.deletedCount) {
+        throw new BadRequest('A blog with id ' + params.id + ' written by ' + params.userId + ' has not been found')
+    }
+
+    res.json({ message: RESPONSE_STATUS_OK })
+
+    res.end()
+
+    return true
+}))
 
 /**
  * Get all blogs, filtered by id, user, "pagination" or category parameters
@@ -88,8 +119,6 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
 
     // get request parameters
     const params = url.parse(req.url,true).query;
-
-    console.log("PARAMS ", params)
 
     let filter = {}
     
