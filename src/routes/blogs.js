@@ -228,8 +228,11 @@ const likeTheBlog = async (likeParams) => {
 /**
  * Return all liked blogs by given user.
  */
- const getUserLikes = async (userId) => {
+ const getUserLikes = async (userId, ids) => {
     return await Blog.aggregate([
+
+        // Consider only the given blogs to not make heavy queries
+        { "$match": { "_id": { "$in": ids } } },
 
         // Join with user_info table
         {
@@ -245,21 +248,23 @@ const likeTheBlog = async (likeParams) => {
         // define which fields are you want to fetch
         {   
             $project:{
-                _id : 1,
-                likes : 1,
-                title : 1,
+                _id: 1,
+                likes: 1,
+                category: 1,
+                title: 1,
                 headline: 1,
-                content : 1,
+                content: 1,
                 image: 1,
-                userId : "$likes_info.userId", // the ID of the user which liked the post
-                active : "$likes_info.active",
+                userId: "$likes_info.userId", // the ID of the user which liked the post
+                activeLike: "$likes_info.active",
+                createdAt: 1
             } 
         },
 
         // define some conditions here 
         {
             $match:{
-                "active" : true,
+                "activeLike" : true,
                 "userId" : userId
            }
         },
