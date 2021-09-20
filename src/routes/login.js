@@ -8,6 +8,7 @@ const { Unauthorized, BadRequest } = require("../errors/index")
 const { logIn, logOut, refreshUserToken } = require("../auth")
 const { RESPONSE_STATUS_OK, RESPONSE_STATUS_ERROR } = require("../config/constants")
 const { REFRESH_TOKEN_SECRET } = require("../config/auth")
+const { getUserDetails } = require("../utils/userUtils")
 
 const router = Router()
 
@@ -32,8 +33,9 @@ router.post('/login', guest, catchAsync(async (req, res) => {
     user.refreshToken = refreshToken
     const result = await user.save()
 
-    // respond with the two tokens
-    res.json({ message: RESPONSE_STATUS_OK, accessToken })
+    // respond with the token and user details
+    const responseBody = await getUserDetails(user, accessToken)
+    res.json(responseBody)
 
     res.end()
 
