@@ -155,13 +155,11 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
     // field to remove from the result
     const dataToRemove = '-createdAt -updatedAt'
     
-    const blogs = await Blog.find(filter).sort({createdAt:-1}).skip(offset).limit(pageSize)
+    let blogs = await Blog.find(filter).sort({createdAt:-1}).skip(offset).limit(pageSize)
 
     // if the request is from a logged in user, return also its liked/favorite posts
     let userId = ""
     auth(req, res, () => {})
-    console.log("1: ", params.userId)
-    console.log("2: ", req.user)
     if (params.userId) {
         userId = params.userId
     }
@@ -169,10 +167,20 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
         userId = mongoose.Types.ObjectId(req.user.id)
     }
 
-    console.log("USER ID: ", userId)
     if (userId) {
-        const liked = await getUserLikes(userId)
-        console.log(liked)
+        // get all the request blogs ids
+        const ids = blogs.map((blog) => blog._id)
+
+        // get all the blogs from the previous list liked by the user
+        const liked = await getUserLikes(userId, ids)
+
+        // merge the list of all requested blog with the liked ones
+        blogs = mergeArrays(blogs, liked, "_id")
+        
+        // sort the result by creation date (desc order)
+        blogs.sort(
+            (a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
     }
 
 
