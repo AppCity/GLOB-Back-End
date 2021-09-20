@@ -43,7 +43,7 @@ router.post('/categories', auth, catchAsync(async (req, res) => {
 /**
  * Get the categories list
  */
-router.get('/categories', auth, catchAsync(async (req, res) => {
+router.get('/categories', catchAsync(async (req, res) => {
 
     const dataToRemove = '-createdAt -updatedAt'
 
