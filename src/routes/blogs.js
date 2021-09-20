@@ -271,6 +271,16 @@ const likeTheBlog = async (likeParams) => {
     ]);
 }
 
+/**
+ * Merge 2 arrays a and b overwriting data with same value for prop
+ */
+const mergeArrays = (a, b, prop) => {
+    var reduced = a.filter(aitem => {
+        return !b.find(bitem => ""+aitem[prop] === ""+bitem[prop])
+    })
+    return reduced.concat(b);
+}
+
 //////////////////////////////////////////
 // Exports
 //////////////////////////////////////////
