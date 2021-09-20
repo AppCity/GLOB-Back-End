@@ -157,6 +157,25 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
     
     const blogs = await Blog.find(filter).sort({createdAt:-1}).skip(offset).limit(pageSize)
 
+    // if the request is from a logged in user, return also its liked/favorite posts
+    let userId = ""
+    auth(req, res, () => {})
+    console.log("1: ", params.userId)
+    console.log("2: ", req.user)
+    if (params.userId) {
+        userId = params.userId
+    }
+    else if (req.user && req.user.id) {
+        userId = mongoose.Types.ObjectId(req.user.id)
+    }
+
+    console.log("USER ID: ", userId)
+    if (userId) {
+        const liked = await getUserLikes(userId)
+        console.log(liked)
+    }
+
+
     res.json(blogs)
 
     res.end()
@@ -172,7 +191,7 @@ const likeTheBlog = async (likeParams) => {
     const { id, userId, active } = likeParams
 
     // search if current user has previously liked this blog
-    const likeFilter = { userId: mongoose.Types.ObjectId(id), blogId: userId }
+    const likeFilter = { userId: mongoose.Types.ObjectId(userId), blogId: id }
     const likeReference = await Like.findOne(likeFilter)
 
     // if no reference is found, the blog is not liked by current user
@@ -204,6 +223,48 @@ const likeTheBlog = async (likeParams) => {
     }
 }
 
+
+
+/**
+ * Return all liked blogs by given user.
+ */
+ const getUserLikes = async (userId) => {
+    return await Blog.aggregate([
+
+        // Join with user_info table
+        {
+            $lookup:{
+                from: "likes",       // other table name
+                localField: "_id",   // name of users table field
+                foreignField: "blogId", // name of userinfo table field
+                as: "likes_info"         // alias for userinfo table
+            }
+        },
+        {   $unwind: "$likes_info" },     // $unwind used for getting data in object or for one record only
+
+        // define which fields are you want to fetch
+        {   
+            $project:{
+                _id : 1,
+                likes : 1,
+                title : 1,
+                headline: 1,
+                content : 1,
+                image: 1,
+                userId : "$likes_info.userId", // the ID of the user which liked the post
+                active : "$likes_info.active",
+            } 
+        },
+
+        // define some conditions here 
+        {
+            $match:{
+                "active" : true,
+                "userId" : userId
+           }
+        },
+    ]);
+}
 
 //////////////////////////////////////////
 // Exports
