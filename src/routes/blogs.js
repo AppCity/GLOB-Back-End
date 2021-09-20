@@ -128,7 +128,7 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
 /**
  * Get all blogs, filtered by id, user, "pagination" or category parameters
  */
- router.get('/blogs', auth, catchAsync(async (req, res) => {
+ router.get('/blogs', catchAsync(async (req, res) => {
 
     // get request parameters
     const params = url.parse(req.url,true).query;
