@@ -7,7 +7,7 @@ const { logIn } = require("../auth")
 const { catchAsync } = require('../middleware/errors')
 const { guest, auth } = require('../middleware/auth')
 const { BadRequest } = require('../errors')
-const { RESPONSE_STATUS_OK } = require('../config/constants')
+const { getUserDetails } = require("../utils/userUtils")
 
 const router = Router()
 
@@ -40,8 +40,9 @@ router.post('/signup', guest, catchAsync(async (req, res) => {
     user.refreshToken = refreshToken;
     const result = await user.save();
 
-    // respond with the two tokens
-    res.json({message: RESPONSE_STATUS_OK, accessToken })
+    // respond with the token and user details
+    const responseBody = await getUserDetails(user, accessToken)
+    res.json(responseBody)
 
     res.end()
 
