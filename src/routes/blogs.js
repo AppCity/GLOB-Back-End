@@ -60,9 +60,11 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
         edited.userId = (typeof edited.userId == "string") ? mongoose.Types.ObjectId(edited.userId) : edited.userId
     }
 
+    let isValidLike = true;
+
     // like/unlike a blog
     if (edited.active != undefined) {
-        await likeTheBlog(edited)
+        isValidLike = await likeTheBlog(edited)
     }
     // edit a blog
     else {
@@ -83,7 +85,9 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
     }
 
     // respond with ok status
-    res.json({ message: RESPONSE_STATUS_OK })
+    res.json((isValidLike)
+         ? { message: RESPONSE_STATUS_OK }
+        : { message: RESPONSE_STATUS_ERROR, description: "Already liked" })
 
     res.end()
 
@@ -200,16 +204,19 @@ const likeTheBlog = async (likeParams) => {
 
     // search if current user has previously liked this blog
     const likeFilter = { userId: mongoose.Types.ObjectId(userId), blogId: id }
+    
+    // if no reference is found, the blog is not liked by current user
     const likeReference = await Like.findOne(likeFilter)
 
-    // if no reference is found, the blog is not liked by current user
-    let isAlreadyLiked = true
-    if (!likeReference || !likeReference.active) {
-        isAlreadyLiked = false
+    // if reference value and given value are the same,
+    // or no reference but given value is "dislike", return error
+    if ((likeReference && (likeReference.active === active)) ||
+        (!likeReference && !active)) {
+        return false;
     }
 
     // if not already liked and like is active, add a new reference document
-    if (!isAlreadyLiked && !likeReference && active) {
+    if (!likeReference && active) {
         const newLikeReference = await Like.create({ ...likeFilter, active })
     }
     // if is already liked, update the current reference
@@ -222,13 +229,15 @@ const likeTheBlog = async (likeParams) => {
     if ((!likeReference && active) || (likeReference && likeReference.active != active)) {
         // get the blog and increase/decrease its counter
         const filter = { _id: mongoose.Types.ObjectId(id) }
-        const update = (!isAlreadyLiked) ? 1 : -1
+        const update = (!likeReference || !likeReference.active) ? 1 : -1
 
         const incResult = await Blog.updateOne(
             filter,
             { "$inc": { "likes": update } }
         )
     }
+
+    return true;
 }
 
 
