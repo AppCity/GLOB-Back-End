@@ -188,7 +188,7 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
     }
 
 
-    res.json(blogs)
+    res.json((blogs.length > 1) ? blogs : blogs[0])
 
     res.end()
 
