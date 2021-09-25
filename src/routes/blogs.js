@@ -194,6 +194,12 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
 
         // merge the list of all requested blog with the liked ones
         blogs = mergeArrays(blogs, liked, "_id")
+
+        // get all the blogs from the previous list that user added to favorite list
+        const favorited = await getUserFavorites(userId, ids)
+
+        // merge the list of all requested blog with the favorite ones
+        blogs = mergeArrays(blogs, favorited, "_id")
         
         // sort the result by creation date (desc order)
         blogs.sort(
@@ -340,6 +346,53 @@ const addBlogToFavorites = async (favoriteParams) => {
     return true;
 }
 
+/**
+ * Return all favorites blogs of given user.
+ */
+ const getUserFavorites = async (userId, ids) => {
+    return await Blog.aggregate([
+
+        // Consider only the given blogs to not make heavy queries
+        { "$match": { "_id": { "$in": ids } } },
+
+        // Join with user_info table
+        {
+            $lookup:{
+                from: "favorites",      // other table name
+                localField: "_id",      // name of users table field
+                foreignField: "blogId", // name of userinfo table field
+                as: "favorites_info"    // alias for userinfo table
+            }
+        },
+        {   $unwind: "$favorites_info" },     // $unwind used for getting data in object or for one record only
+
+        // define which fields are you want to fetch
+        {   
+            $project:{
+                _id: 1,
+                id: 1,
+                likes: 1,
+                category: 1,
+                title: 1,
+                headline: 1,
+                content: 1,
+                image: 1,
+                userId: "$favorites_info.userId", // the ID of the user which favorite the post
+                activeFavorite: "$favorites_info.favorite",
+                createdAt: 1
+            } 
+        },
+
+        // define some conditions here 
+        {
+            $match:{
+                "activeFavorite" : true,
+                "userId" : userId
+           }
+        },
+    ]);
+}
+
 //////////////////////////////////////////
 // Generic Utils
 //////////////////////////////////////////
@@ -362,7 +415,6 @@ const mergeArrays = (a, b, prop) => {
             return { ...elemA, ...elemB }
         return elemA
     })
-    return reduced.concat(b);
 }
 
 //////////////////////////////////////////
