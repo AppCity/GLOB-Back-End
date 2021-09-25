@@ -59,3 +59,17 @@ router.get('/user', auth, catchAsync(async (req, res) => {
 
     res.json(responseBody)
 }))
+
+// Delete user from DB
+router.delete('/user', auth, catchAsync(async (req, res) => {
+    const user = await User.deleteOne({ _id: req.user.id })
+
+    console.log("user", user)
+
+    res.json({ message: (user && user.deletedCount) ? RESPONSE_STATUS_OK : RESPONSE_STATUS_ERROR })
+}))
+
+
+module.exports = {
+    router
+}
