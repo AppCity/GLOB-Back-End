@@ -7,6 +7,7 @@ const { BadRequest } = require('../errors')
 const { getUserDetails } = require("../utils/userUtils")
 const { RESPONSE_STATUS_OK, RESPONSE_STATUS_ERROR } = require("../config/constants")
 
+const url = require('url');
 const mongoose = require('mongoose');
 
 const router = Router()
@@ -53,7 +54,23 @@ router.put('/user', auth, catchAsync(async (req, res) => {
 
 // Get user's details
 router.get('/user', auth, catchAsync(async (req, res) => {
-    const user = await User.findById(req.user.id)
+    const params = url.parse(req.url, true).query;
+
+    // filter by blog id
+    if (!params || !params.userId) {
+        if (req.user.id) {
+            params.userId = req.user.id
+        }
+        else {
+            throw new BadRequest('UserId is a required parameter to delete a user.')
+        }
+    }
+
+    const user = await User.findById(params.userId)
+
+    if (!user) {
+        throw new BadRequest('No users found with given userId')        
+    }
 
     const responseBody = await getUserDetails(user, "")
 
