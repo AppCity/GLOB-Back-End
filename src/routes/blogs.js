@@ -85,7 +85,7 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
 
         const oldBlog = await Blog.updateOne(filter, newBlog)
 
-        if (!oldBlog) {
+        if (!oldBlog || !oldBlog.nModified) {
             throw new BadRequest('A blog with id ' + id + ' written by ' + userId + ' has not been found')
         }
 
