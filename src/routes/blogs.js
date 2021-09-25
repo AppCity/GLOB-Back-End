@@ -209,7 +209,7 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
 
     // remove unused props and put mongo id into id field
     blogs = blogs.map((currentBlog) => {
-        const {_id, __v, updatedAt, ...clearedBlog} = (currentBlog._doc) ? currentBlog._doc : currentBlog
+        const {_id, __v, updatedAt, likedBy, favoritedBy, ...clearedBlog} = (currentBlog._doc) ? currentBlog._doc : currentBlog
         clearedBlog.id = _id
         return clearedBlog
     });
@@ -298,8 +298,9 @@ const likeTheBlog = async (likeParams) => {
                 headline: 1,
                 content: 1,
                 image: 1,
-                userId: "$likes_info.userId", // the ID of the user which liked the post
-                activeLike: "$likes_info.active",
+                userId: 1,
+                likedBy: "$likes_info.userId", // the ID of the user which likes the post
+                activeLike: "$likes_info.active", // if given user liked the blog
                 createdAt: 1
             } 
         },
@@ -308,7 +309,7 @@ const likeTheBlog = async (likeParams) => {
         {
             $match:{
                 "activeLike" : true,
-                "userId" : userId
+                "likedBy" : userId
            }
         },
     ]);
@@ -377,8 +378,9 @@ const addBlogToFavorites = async (favoriteParams) => {
                 headline: 1,
                 content: 1,
                 image: 1,
-                userId: "$favorites_info.userId", // the ID of the user which favorite the post
-                activeFavorite: "$favorites_info.favorite",
+                userId: 1,
+                favoritedBy: "$favorites_info.userId", // the ID of the user which favorite the post
+                activeFavorite: "$favorites_info.favorite", // if the current user put blog in its favorite list
                 createdAt: 1
             } 
         },
@@ -387,7 +389,7 @@ const addBlogToFavorites = async (favoriteParams) => {
         {
             $match:{
                 "activeFavorite" : true,
-                "userId" : userId
+                "favoritedBy" : userId
            }
         },
     ]);
