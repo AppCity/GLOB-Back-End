@@ -62,9 +62,14 @@ router.get('/user', auth, catchAsync(async (req, res) => {
 
 // Delete user from DB
 router.delete('/user', auth, catchAsync(async (req, res) => {
-    const user = await User.deleteOne({ _id: req.user.id })
+    const params = url.parse(req.url, true).query;
 
-    console.log("user", user)
+    // filter by blog id
+    if (!params || !params.userId) {
+        throw new BadRequest('UserId is a required parameter to delete a user.')
+    }
+
+    const user = await User.deleteOne({ _id: mongoose.Types.ObjectId(params.userId) })
 
     res.json({ message: (user && user.deletedCount) ? RESPONSE_STATUS_OK : RESPONSE_STATUS_ERROR })
 }))
