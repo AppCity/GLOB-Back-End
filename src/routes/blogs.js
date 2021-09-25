@@ -348,8 +348,19 @@ const addBlogToFavorites = async (favoriteParams) => {
  * Merge 2 arrays a and b overwriting data with same value for prop
  */
 const mergeArrays = (a, b, prop) => {
-    var reduced = a.filter(aitem => {
-        return !b.find(bitem => ""+aitem[prop] === ""+bitem[prop])
+    // var reduced = a.filter(aitem => {
+    //     return !b.find(bitem => ""+aitem[prop] === ""+bitem[prop])
+    // })
+    // return reduced.concat(b);
+
+    return a.map((elemA) => {
+        if (elemA._doc)
+            elemA = elemA._doc
+        
+        const elemB = b.find(bitem => ""+elemA[prop] === ""+bitem[prop])
+        if (elemB)
+            return { ...elemA, ...elemB }
+        return elemA
     })
     return reduced.concat(b);
 }
