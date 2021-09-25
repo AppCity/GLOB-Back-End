@@ -21,7 +21,13 @@ blogSchema.pre('save', async function () {
     // }
 })
 
+// Add virtual fields to return different names
+blogSchema.virtual('id').get(function(){
+    return this._id.toHexString();
+});
+
 blogSchema.set('toJSON', {
+    virtuals: true,
     transform: (doc, {__v, password, ...rest}, options) => rest
 })
 
