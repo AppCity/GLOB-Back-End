@@ -4,6 +4,7 @@ const { catchAsync } = require("../middleware/errors")
 const { Blog } = require("../models/blog")
 const { User } = require("../models/user")
 const { Like } = require("../models/like")
+const { Favorite } = require("../models/favorite")
 const { Unauthorized, BadRequest } = require("../errors/index")
 const { RESPONSE_STATUS_OK, RESPONSE_STATUS_ERROR } = require("../config/constants")
 
@@ -60,11 +61,15 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
         edited.userId = (typeof edited.userId == "string") ? mongoose.Types.ObjectId(edited.userId) : edited.userId
     }
 
-    let isValidLike = true;
+    let isValidEdit = true;
 
     // like/unlike a blog
     if (edited.active != undefined) {
-        isValidLike = await likeTheBlog(edited)
+        isValidEdit = await likeTheBlog(edited)
+    }
+    // favorite/unfavorite a blog
+    else if (edited.favorite != undefined) {
+        isValidEdit = await addBlogToFavorites(edited)
     }
     // edit a blog
     else {
@@ -94,7 +99,7 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
     }
 
     // respond with ok status
-    res.json((isValidLike)
+    res.json((isValidEdit)
          ? { message: RESPONSE_STATUS_OK }
         : { message: RESPONSE_STATUS_ERROR, description: "Already liked" })
 
@@ -212,7 +217,7 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
 }))
 
 //////////////////////////////////////////
-// Utils
+// Like Utils
 //////////////////////////////////////////
 
 const likeTheBlog = async (likeParams) => {
@@ -255,8 +260,6 @@ const likeTheBlog = async (likeParams) => {
 
     return true;
 }
-
-
 
 /**
  * Return all liked blogs by given user.
@@ -304,6 +307,42 @@ const likeTheBlog = async (likeParams) => {
         },
     ]);
 }
+
+//////////////////////////////////////////
+// Favorite Utils
+//////////////////////////////////////////
+
+const addBlogToFavorites = async (favoriteParams) => {
+    const { id, userId, favorite } = favoriteParams
+
+    // search if current user has previously put this blog in favorite list
+    const favoriteFilter = { userId: mongoose.Types.ObjectId(userId), blogId: id }
+    
+    // if no reference is found, the blog is not in current user fav list
+    const favoriteReference = await Favorite.findOne(favoriteFilter)
+
+    // if reference value and given value are the same,
+    // or no reference but given value is "not favorite", return error
+    if ((favoriteReference && (favoriteReference.favorite === favorite)) ||
+        (!favoriteReference && !favorite)) {
+        return false;
+    }
+
+    // if not already in favorite list and given value is favorite, add a new reference document
+    if (!favoriteReference && favorite) {
+        const newfavoriteReference = await Favorite.create({ ...favoriteFilter, favorite })
+    }
+    // if is already on favorites, update the current reference
+    else if (favoriteReference) {
+        const newfavoriteReference = await Favorite.updateOne(favoriteFilter, { favorite })
+    }
+
+    return true;
+}
+
+//////////////////////////////////////////
+// Generic Utils
+//////////////////////////////////////////
 
 /**
  * Merge 2 arrays a and b overwriting data with same value for prop
