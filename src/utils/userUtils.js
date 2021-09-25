@@ -17,6 +17,8 @@ const getUserDetails = async (user, accessToken) => {
         phone: user.phone,
         email: user.email,
         profileImage: user.image,
+        website: (user.website) ? user.website : "",
+        dailyReaders: (user.dailyReaders) ? user.dailyReaders : 0,
         publishedArticles
     }
 }
