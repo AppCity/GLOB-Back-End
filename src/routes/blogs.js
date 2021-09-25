@@ -71,10 +71,19 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
         // TODO how to add the image.
 
         // get blog with given id and userid
-        const { id, userId, ...newBlog } = edited
+        const { id, userId, ...remaining } = edited
         const filter = { _id: mongoose.Types.ObjectId(id), userId }
 
-        const oldBlog = await Blog.findOneAndUpdate(filter, newBlog)
+        // add only the editable fields
+        const newBlog = {
+            category: remaining.category,
+            title: remaining.title,
+            headline: remaining.headline,
+            content: remaining.content,
+            image: remaining.image
+        }
+
+        const oldBlog = await Blog.updateOne(filter, newBlog)
 
         if (!oldBlog) {
             throw new BadRequest('A blog with id ' + id + ' written by ' + userId + ' has not been found')
