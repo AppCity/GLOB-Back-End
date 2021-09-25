@@ -50,3 +50,12 @@ router.put('/user', auth, catchAsync(async (req, res) => {
     res.end()
 
 }))
+
+// Get user's details
+router.get('/user', auth, catchAsync(async (req, res) => {
+    const user = await User.findById(req.user.id)
+
+    const responseBody = await getUserDetails(user, "")
+
+    res.json(responseBody)
+}))
