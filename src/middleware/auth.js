@@ -24,7 +24,7 @@ const auth = async (req, res, next) => {
     // validate if the user has been logged out
     const user = await User.findById(req.user.id)
     
-    if (!user.refreshToken)
+    if (!user || !user.refreshToken)
         return next(new Unauthorized(notLoggedIn))
 
     next()
