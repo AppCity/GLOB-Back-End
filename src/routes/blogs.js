@@ -184,8 +184,15 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
         // sort the result by creation date (desc order)
         blogs.sort(
             (a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
+        )
     }
+
+    // remove unused props and put mongo id into id field
+    blogs = blogs.map((currentBlog) => {
+        const {_id, __v, updatedAt, ...clearedBlog} = (currentBlog._doc) ? currentBlog._doc : currentBlog
+        clearedBlog.id = _id
+        return clearedBlog
+    });
 
 
     res.json((blogs.length > 1) ? blogs : blogs[0])
@@ -266,6 +273,7 @@ const likeTheBlog = async (likeParams) => {
         {   
             $project:{
                 _id: 1,
+                id: 1,
                 likes: 1,
                 category: 1,
                 title: 1,
