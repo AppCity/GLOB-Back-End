@@ -10,6 +10,19 @@ const { RESPONSE_STATUS_OK, RESPONSE_STATUS_ERROR } = require("../config/constan
 
 const url = require('url');
 const mongoose = require('mongoose');
+const fs = require('fs')
+
+// import multer to get file from form data
+const multer = require('multer')
+const upload = multer({ dest: 'uploads/' })
+
+// import and configure cloudinary utility module
+let cloudinary = require("cloudinary").v2;
+cloudinary.config({ 
+    cloud_name: 'app-city', 
+    api_key: '288634355675271', 
+    api_secret: 'oEmH0WOIYWYAtBucoNvsOT0eh9Q' 
+});
 
 const router = Router()
 
@@ -21,8 +34,6 @@ router.post('/blogs', auth, catchAsync(async (req, res) => {
 
     //await validate(loginSchema, req.body)
     const { category, title, headline, content, image } = req.body
-
-    // TODO how to add the image.
 
     // create new user and save it inside the DB
     const blog = await Blog.create({
@@ -37,6 +48,60 @@ router.post('/blogs', auth, catchAsync(async (req, res) => {
 
     // respond with ok status
     res.json({ message: RESPONSE_STATUS_OK, id: blog._id })
+
+    res.end()
+
+    return true
+}))
+
+/**
+ * Create a new blog
+ */
+router.post('/images', upload.single('image'), /*auth,*/ catchAsync(async (req, res) => {
+    // get the file from the form
+    const file = req.file
+    const blogId = req.body.blogId
+    let userId = req.body.userId
+
+    if (!userId) {
+        const user = await User.findById(req.user.id)
+        userId = user._id
+    }
+    else {
+        userId = (typeof userId == "string") ? mongoose.Types.ObjectId(userId) : userId
+    }
+    
+    // upload image to cloudinary
+    let result;
+    try {
+        result = await streamUpload(file)
+    } catch (error) {
+        throw new BadRequest('Something went wrong uploading image!')
+    }
+
+    // get uploaded image url
+    const toEdit = {
+        image: result.url
+    }
+
+    // add image to blog if there is a blog id
+    let oldValue;
+    if (blogId) {
+        const filter = { _id: mongoose.Types.ObjectId(blogId), userId }
+        oldValue = await Blog.updateOne(filter, toEdit)
+    }
+    // else add the image to the user
+    else {
+        const filter = { _id: userId }
+        oldValue = await User.updateOne(filter, toEdit)
+    }
+
+    // if no blogs have been deleted, throw an error
+    if (!oldValue || !oldValue.nModified) {
+        throw new BadRequest('Something went wrong adding image URL to a document')
+    }
+
+    res.json({ message: RESPONSE_STATUS_OK })
 
     res.end()
 
@@ -221,6 +286,30 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
 
     return true
 }))
+
+//////////////////////////////////////////
+// Images Utils
+//////////////////////////////////////////
+
+const streamUpload = (file) => {
+    return new Promise((resolve, reject) => {
+        let stream = cloudinary.uploader.upload_stream(
+            {
+                folder: 'glob',
+                upload_preset: 'ml_default',
+            },
+
+            (error, result) => {
+                if (result) {
+                    resolve(result);
+                } else {
+                    reject(error);
+                }
+            }
+        );
+        fs.createReadStream(file.path).pipe(stream);
+    });
+};
 
 //////////////////////////////////////////
 // Like Utils
