@@ -10,6 +10,7 @@ const userSchema = new Schema({
     phone: String,
     email: String,
     password: String,
+    image: String,
     refreshToken: String
 }, {
     timestamps: true
