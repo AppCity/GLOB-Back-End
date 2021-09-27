@@ -138,8 +138,6 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
     }
     // edit a blog
     else {
-        // TODO how to add the image.
-
         // get blog with given id and userid
         const { id, userId, ...remaining } = edited
         const filter = { _id: mongoose.Types.ObjectId(id), userId }
@@ -280,7 +278,7 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
     });
 
 
-    res.json((blogs.length > 1) ? blogs : blogs[0])
+    res.json((blogs.length == 1 && params.id) ? blogs[0] : blogs)
 
     res.end()
 
