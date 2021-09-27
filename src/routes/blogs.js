@@ -278,7 +278,13 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
     });
 
 
-    res.json((blogs.length == 1 && params.id) ? blogs[0] : blogs)
+    if (blogs.length == 1 && params.id)
+        res.json(blogs[0])
+    else if (blogs.length < 1 && params.id)
+        res.json({})
+    else
+        res.json(blogs)
+
 
     res.end()
 
