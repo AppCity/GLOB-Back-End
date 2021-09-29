@@ -29,15 +29,38 @@ router.put('/user', auth, catchAsync(async (req, res) => {
     const filter = { _id: userId }
 
     // add only the editable fields
-    const editedUser = {
-        username: remaining.username,
-        fullname: remaining.fullname,
-        email: remaining.email,
-        phone: remaining.phone,
-        profileImage: remaining.profileImage,
-        image: remaining.image,
-        website: remaining.website,
-        dailyReaders: remaining.dailyReaders
+    const editedUser = {}
+    
+    if (remaining.username) {
+        editedUser.username = remaining.username;
+    }
+
+    if (remaining.fullname) {
+        editedUser.fullname = remaining.fullname;
+    }
+
+    if (remaining.email) {
+        editedUser.email = remaining.email;
+    }
+    
+    if (remaining.phone) {
+        editedUser.phone = remaining.phone;
+    }
+    
+    if (remaining.profileImage) {
+        editedUser.profileImage = remaining.profileImage;
+    }
+    
+    if (remaining.image) {
+        editedUser.image = remaining.image;
+    }
+
+    if (remaining.website) {
+        editedUser.website = remaining.website;
+    }
+
+    if (remaining.dailyReaders) {
+        editedUser.dailyReaders = remaining.dailyReaders;
     }
 
     const oldUser = await User.updateOne(filter, editedUser)
