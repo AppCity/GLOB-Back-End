@@ -85,8 +85,10 @@ router.get('/token', auth, catchAsync(async(req, res) => {
     // verify the given token and refresh it
     const accessToken = refreshUserToken(user, refreshToken)
     
-    if (accessToken)
-        res.json({ messsage: RESPONSE_STATUS_OK, accessToken }).status(204)
+    if (accessToken) {
+        const responseBody = await getUserDetails(user, accessToken)
+        res.json(responseBody)
+    }
     else
         throw new BadRequest('Error during token refresh')
 
