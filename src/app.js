@@ -6,6 +6,7 @@ const login = require('./routes/login')
 const register = require('./routes/register')
 const users = require('./routes/users')
 const blogs = require('./routes/blogs')
+const favorites = require('./routes/favorites')
 const categories = require('./routes/categories')
 
 
@@ -23,6 +24,8 @@ const createApp = () => {
     app.use(home.router)
 
     app.use(blogs.router)
+
+    app.use(favorites.router)
 
     app.use(categories.router)
 
