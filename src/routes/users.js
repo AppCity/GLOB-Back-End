@@ -24,8 +24,6 @@ router.put('/user', auth, catchAsync(async (req, res) => {
         edited.userId = (typeof edited.userId == "string") ? mongoose.Types.ObjectId(edited.userId) : edited.userId
     }
 
-    // TODO how to add the profile image.
-
     // get user from given userid
     const { userId, ...remaining } = edited
     const filter = { _id: userId }
@@ -36,7 +34,10 @@ router.put('/user', auth, catchAsync(async (req, res) => {
         fullname: remaining.fullname,
         email: remaining.email,
         phone: remaining.phone,
-        profileImage: remaining.profileImage
+        profileImage: remaining.profileImage,
+        image: remaining.image,
+        website: remaining.website,
+        dailyReaders: remaining.dailyReaders
     }
 
     const oldUser = await User.updateOne(filter, editedUser)
