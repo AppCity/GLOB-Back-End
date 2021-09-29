@@ -127,14 +127,17 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
     }
 
     let isValidEdit = true;
+    let errorMessage = "";
 
     // like/unlike a blog
     if (edited.active != undefined) {
         isValidEdit = await likeTheBlog(edited)
+        errorMessage = "Already liked"
     }
     // favorite/unfavorite a blog
     else if (edited.favorite != undefined) {
         isValidEdit = await addBlogToFavorites(edited)
+        errorMessage = "Already bookmarked"
     }
     // edit a blog
     else {
@@ -164,7 +167,7 @@ router.put('/blogs', auth, catchAsync(async (req, res) => {
     // respond with ok status
     res.json((isValidEdit)
          ? { message: RESPONSE_STATUS_OK }
-        : { message: RESPONSE_STATUS_ERROR, description: "Already liked" })
+        : { message: RESPONSE_STATUS_ERROR, description: errorMessage })
 
     res.end()
 
