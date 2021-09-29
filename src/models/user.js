@@ -11,6 +11,8 @@ const userSchema = new Schema({
     email: String,
     password: String,
     image: String,
+    website: String,
+    dailyReaders: String,
     refreshToken: String
 }, {
     timestamps: true
