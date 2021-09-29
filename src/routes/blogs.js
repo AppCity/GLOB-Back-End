@@ -447,7 +447,7 @@ const addBlogToFavorites = async (favoriteParams) => {
  * Return all favorites blogs of given user.
  */
  const getUserFavorites = async (userId, ids) => {
-    return await Blog.aggregate([
+    let aggregateParams = [
 
         // Consider only the given blogs to not make heavy queries
         { "$match": { "_id": { "$in": ids } } },
@@ -488,7 +488,14 @@ const addBlogToFavorites = async (favoriteParams) => {
                 "favoritedBy" : userId
            }
         },
-    ]);
+    ]
+
+    // if ids is null, remove the first filter
+    if (!ids) {
+        aggregateParams.shift()
+    }
+
+    return await Blog.aggregate(aggregateParams);
 }
 
 //////////////////////////////////////////
@@ -520,5 +527,7 @@ const mergeArrays = (a, b, prop) => {
 //////////////////////////////////////////
 
 module.exports = {
-    router
+    router,
+    getUserLikes,
+    getUserFavorites
 }
