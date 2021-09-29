@@ -12,7 +12,7 @@ const userSchema = new Schema({
     password: String,
     image: String,
     website: String,
-    dailyReaders: String,
+    dailyReaders: Number,
     refreshToken: String
 }, {
     timestamps: true
