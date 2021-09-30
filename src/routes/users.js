@@ -48,7 +48,7 @@ router.put('/user', auth, catchAsync(async (req, res) => {
     }
     
     if (remaining.profileImage) {
-        editedUser.profileImage = remaining.profileImage;
+        editedUser.image = remaining.profileImage;
     }
     
     if (remaining.image) {
